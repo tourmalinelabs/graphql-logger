@@ -1,0 +1,36 @@
+{
+  "extends": "airbnb",
+  "env": {
+    "node": true,
+    "mocha": true,
+    "es6": true,
+    "browser": true
+  },
+  "rules": {
+    "space-infix-ops": 0,
+    "max-len": [
+      "warn",
+      {
+        "code": 80,
+        "ignoreComments": true
+      }
+    ],
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": true,
+        "optionalDependencies": false,
+        "peerDependencies": false
+      }
+    ]
+  },
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "modules": true,
+      "jsx": true
+    }
+  }
+}

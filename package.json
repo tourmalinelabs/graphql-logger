@@ -1,0 +1,46 @@
+{
+  "name": "graphql-logger",
+  "version": "0.0.0",
+  "description": "Publish parsed express graphql requests",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:DubFriend/graphql-logger.git"
+  },
+  "author": "Brian Detering",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "dotenv": "^4.0.0",
+    "express-graphql": "^0.6.6",
+    "graphql": "^0.10.1",
+    "graphql-resolve": "0.0.2",
+    "lodash": "^4.17.4",
+    "moment": "^2.18.1",
+    "slugid": "^1.1.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-eslint": "^7.2.3",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-flow": "^6.23.0",
+    "babel-preset-react": "^6.24.1",
+    "chai": "^4.0.2",
+    "chai-as-promised": "^6.0.0",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^15.0.1",
+    "eslint-plugin-import": "^2.3.0",
+    "eslint-plugin-jsx-a11y": "^5.0.3",
+    "eslint-plugin-react": "^7.0.1",
+    "express": "^4.15.3",
+    "flow-bin": "^0.47.0",
+    "graphql-relay": "^0.5.2",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-mocha": "^4.3.1",
+    "mocha": "^3.4.2",
+    "request": "^2.81.0",
+    "sinon": "^2.3.4",
+    "yargs": "^8.0.1"
+  }
+}
