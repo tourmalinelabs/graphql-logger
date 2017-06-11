@@ -12,12 +12,7 @@ gulp.task(
   .pipe(gulp.dest('lib'))
 );
 
-gulp.task(
-  'test',
-  [
-    'transpile',
-  ],
-  () => gulp.src([
+gulp.task('test', ['transpile'], () => gulp.src([
     'lib/**/*.unit.js',
     'lib/**/*.e2e.js'
   ])

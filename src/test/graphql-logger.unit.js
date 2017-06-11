@@ -2,20 +2,19 @@
 /* eslint-disable no-unused-expressions */
 const Promise = require('bluebird');
 const _ = require('lodash');
-const request = Promise.promisifyAll(require('request'));
+const request:any = Promise.promisifyAll(require('request'));
 const { expect } = require('chai');
 const graphqlServer = require('./server');
 const sinon = require('sinon');
 
-const graphqlRequest = (query, variables) => request.postAsync({
+const graphqlRequest = (query:string, variables:?Object) => request.postAsync({
   url: 'http://localhost:3000/graphql',
   json: true,
   body: { query, variables: variables && JSON.stringify(variables) },
 })
 .then(({ body }) => body);
 
-
-describe('log-graphql', () => {
+describe('graphql-logger', () => {
   let logsSpy;
   const startServer = (fig={}) => graphqlServer(_.extend({
     connection: {
@@ -54,7 +53,18 @@ describe('log-graphql', () => {
       return startServer()
       .then(() => graphqlRequest(query))
       .then(({ data, errors }) => {
-        expect(errors).to.be.undefined;
+        expect(errors).to.deep.equal([
+          {
+            message: 'promised-error',
+            locations: [{ line: 6, column: 9 }],
+            path: ['promisedError'],
+          },
+          {
+            message: 'thrown-error',
+            locations: [{ line: 7, column: 9 }],
+            path: ['thrownError'],
+          },
+        ]);
         expect(data).to.deep.equal({
           promised: 'promised-data',
           unpromised: 'unpromised-data',
@@ -133,7 +143,13 @@ describe('log-graphql', () => {
     () => startServer()
     .then(() => graphqlRequest('{ promisedError }'))
     .then(({ errors }) => {
-      expect(errors).to.be.undefined;
+      expect(errors).to.deep.equal([
+        {
+          message: 'promised-error',
+          locations: [{ line: 1, column: 3 }],
+          path: ['promisedError'],
+        },
+      ]);
       expect(logsSpy.args[0][0].req.tree.query.promisedError.err)
       .to.have.all.keys('json', 'stack');
     }),
@@ -144,7 +160,13 @@ describe('log-graphql', () => {
     () => startServer()
     .then(() => graphqlRequest('{ thrownError }'))
     .then(({ errors }) => {
-      expect(errors).to.be.undefined;
+      expect(errors).to.deep.equal([
+        {
+          message: 'thrown-error',
+          locations: [{ line: 1, column: 3 }],
+          path: ['thrownError'],
+        },
+      ]);
       expect(logsSpy.args[0][0].req.tree.query.thrownError.err)
       .to.have.all.keys('json', 'stack');
     }),
@@ -164,8 +186,7 @@ describe('log-graphql', () => {
     'should have option to change indexInterval',
     () => startServer({ indexInterval: 'daily' })
     .then(() => graphqlRequest('{ unpromised }'))
-    .then(({ errors }) => {
-      expect(errors).to.be.undefined;
+    .then(() => {
       expect(logsSpy.args[0][0].index)
       .to.match(/[\d]{4}\.[\d]{2}\.[\d]{2}$/);
     }),

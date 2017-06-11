@@ -120,6 +120,7 @@ export default function ({
           json: JSON.stringify(err, null, 2),
           stack: err.stack,
         };
+        return Promise.reject(err);
       });
     }
 
