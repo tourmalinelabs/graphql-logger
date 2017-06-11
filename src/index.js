@@ -5,6 +5,22 @@ import _ from 'lodash';
 import graphqlHTTP from 'express-graphql';
 import graphqlResolve, { defaultNext, promisifyNext } from 'graphql-resolve';
 
+export type GraphQLLoggerBranch = {
+  dur?:number,
+  resp?:string,
+  err?: {|
+    json:string,
+    stack:string,
+  |},
+  args?:Object,
+  [string]: GraphQLLoggerBranch,
+};
+
+export type GraphQLLoggerTree = {
+  query: { [string]: GraphQLLoggerBranch },
+  mutation: { [string]: GraphQLLoggerBranch },
+};
+
 export default function ({
   schema,
   disableLists=false,
@@ -14,7 +30,7 @@ export default function ({
   schema:GraphQLSchema,
   disableLists?:boolean,
   disableResponseData?:boolean,
-  onFinish:(req:*, res:*) => *,
+  onFinish:(req:{ graphqlTree:GraphQLLoggerTree }, res:*) => void,
 |}) {
   const flattenPath = (path, inverted=[]) => {
     if (path) {

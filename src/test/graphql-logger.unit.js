@@ -17,7 +17,9 @@ const graphqlRequest = (query:string, variables:?Object) => request.postAsync({
 describe('graphql-logger', () => {
   let logsSpy;
   const startServer = (fig={}) => graphqlServer(_.extend({
-    onFinish: req => logsSpy(req.graphqlTree),
+    onFinish: ({ graphqlTree }) => {
+      logsSpy(graphqlTree);
+    },
     disableLists: false,
     disableResponseData: false,
   }, fig));
@@ -63,6 +65,7 @@ describe('graphql-logger', () => {
           thrownError: null,
         });
         const tree = logsSpy.args[0][0];
+        // console.log(JSON.stringify(tree, null, 2))
         expect(typeof tree.query.list['0'].val.dur).to.equal('number');
         expect(tree.query).to.have.all.keys(
           'unpromised',
