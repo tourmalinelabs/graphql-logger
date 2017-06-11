@@ -1,6 +1,5 @@
 // @flow
 import Promise from 'bluebird';
-import _ from 'lodash';
 import express from 'express';
 import expressGraphql from 'express-graphql';
 import {
@@ -12,7 +11,11 @@ import {
 import { mutationWithClientMutationId } from 'graphql-relay';
 import graphqlLogger from '../index';
 
-module.exports = (fig:*) => new Promise((resolve) => {
+module.exports = ({
+  onFinish,
+  disableLists,
+  disableResponseData,
+}:*) => new Promise((resolve) => {
   const app = express();
 
   const start = () => {
@@ -100,7 +103,12 @@ module.exports = (fig:*) => new Promise((resolve) => {
       }),
     });
 
-    app.use(graphqlLogger(_.extend(fig, { schema })));
+    app.use(graphqlLogger({
+      schema,
+      onFinish,
+      disableLists,
+      disableResponseData,
+    }));
 
     app.use('/graphql', expressGraphql(() => ({
       schema,

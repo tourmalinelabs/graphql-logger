@@ -1,7 +1,7 @@
 {
   "name": "graphql-logger",
-  "version": "0.0.0",
-  "description": "Publish parsed express graphql requests",
+  "version": "0.0.1",
+  "description": "Records a parsed graphql request onto the express request object.",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
@@ -15,9 +15,7 @@
     "express-graphql": "^0.6.6",
     "graphql": "^0.10.1",
     "graphql-resolve": "0.0.2",
-    "lodash": "^4.17.4",
-    "moment": "^2.18.1",
-    "slugid": "^1.1.0"
+    "lodash": "^4.17.4"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",

@@ -1,43 +1,21 @@
 // @flow
 import type { GraphQLSchema } from 'graphql';
 
-import moment from 'moment';
 import _ from 'lodash';
 import graphqlHTTP from 'express-graphql';
-import slugid from 'slugid';
 import graphqlResolve, { defaultNext, promisifyNext } from 'graphql-resolve';
-import createRabbitmq from './rabbitmq';
 
 export default function ({
   schema,
-  connection,
-  indexPrefix='logstash',
-  indexInterval='weekly',
   disableLists=false,
   disableResponseData=false,
+  onFinish=(() => {}),
 }:{|
   schema:GraphQLSchema,
-  connection:*,
-  indexPrefix?:string,
-  indexInterval?:string,
   disableLists?:boolean,
   disableResponseData?:boolean,
+  onFinish:(req:*, res:*) => *,
 |}) {
-  const rabbitmq = createRabbitmq({ connection });
-
-  const generateIndexInterval = () => {
-    switch (indexInterval) {
-      case 'daily':
-        return moment.utc().format('YYYY.MM.DD');
-      case 'weekly':
-        return moment.utc().format('YYYY.W');
-      case 'monthly':
-        return moment.utc().format('YYYY.MM');
-      default:
-        throw new Error(`Invalid indexInterval: ${indexInterval}`);
-    }
-  };
-
   const flattenPath = (path, inverted=[]) => {
     if (path) {
       inverted.push(path.key);
@@ -134,66 +112,12 @@ export default function ({
   });
 
   return (req:*, res:*, next:*) => {
-    const logId = slugid.v4();
-    const counter = (() => {
-      let count = 0;
-      return () => {
-        count += 1;
-        return count;
-      };
-    })();
-
-    req.logs = [];
-    req.addLog = data => req.logs.push(data);
-
-    req.sendLogs = rabbitmq.sendLogs;
-
-    req.flushLogs = () => {
-      const mappedLogs = {};
-
-      _.each(req.logs, (log) => {
-        if (!mappedLogs[log.type]) {
-          mappedLogs[log.type] = _.omit(log, 'type');
-        } else {
-          mappedLogs[`${log.type}-${counter()}`] = _.omit(log, 'type');
-        }
-      });
-
-      rabbitmq.sendLogs(_.extend(
-        mappedLogs,
-        {
-          id: logId,
-          index: `${indexPrefix}-${generateIndexInterval()}`,
-          type: 'graphql-request',
-        },
-      ));
-    };
-
     graphqlHTTP.getGraphQLParams(req)
     .then((params) => {
       req.body = params;
-      const startTime = Date.now();
       res.on('finish', () => {
-        const log = {
-          type: 'req',
-          ip: req.ip,
-          query: req.body.query,
-          tree: req.graphqlTree,
-          user: req.user,
-          headers: req.headers,
-          dur: Date.now() - startTime,
-        };
-
-        if (log.headers && log.headers['content-length']) {
-          log.headers['content-length'] = parseInt(
-            log.headers['content-length'], 10,
-          );
-        }
-
-        req.addLog(log);
-        req.flushLogs();
+        onFinish(req, res);
       });
-
       next();
     })
     .catch(next);
